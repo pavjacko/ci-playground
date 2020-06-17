@@ -1,0 +1,30 @@
+env:
+  global:
+    - NODE_OPTIONS=--max_old_space_size=8192
+jobs:
+  include:
+    - name: "Android Emulators"
+      language: android
+      cache:
+        directories:
+          - node_modules
+          - $HOME/.gradle
+      sudo: required
+      jdk: oraclejdk8
+      android:
+        components:
+          - tools
+          - build-tools-28.0.3
+          - extra-google-m2repository
+          - extra-android-m2repository
+          - platform-tools
+          - android-28
+          - sys-img-x86-android-28
+      install:
+        - echo yes | sdkmanager "platforms;android-28"
+      before_script:
+        - echo no | android create avd --force -n test -t android-28 --abi armeabi-v7a -c 100M
+        - emulator -avd test -no-audio -no-window &
+        - android-wait-for-emulator
+        - adb shell input keyevent 82 &
+      script: echo done
