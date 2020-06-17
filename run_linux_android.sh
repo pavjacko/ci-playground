@@ -24,14 +24,15 @@ echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository' > /
 echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;android;m2repository' > /dev/null
 echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;google_play_services' > /dev/null
 echo y | $HOME/android-sdk/tools/bin/sdkmanager 'emulator' > /dev/null
-yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
+echo yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
 
 export ANDROID_HOME=$HOME/android-sdk/
+export ANDROID_SDK_ROOT=$HOME/android-sdk/
 export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
-yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+echo yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 $ANDROID_HOME/tools/bin/sdkmanager "system-images;android-22;default;armeabi-v7a" > /dev/null
 $ANDROID_HOME/tools/bin/sdkmanager --list | head -15
-yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+echo yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 echo no | $ANDROID_HOME/tools/bin/avdmanager create avd --force -n test -k "system-images;android-22;default;armeabi-v7a"
 $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
 $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop init.svc.bootanim) ]]; do sleep 1; done; input keyevent 82'
