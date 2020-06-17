@@ -1,115 +1,137 @@
-
-env:
-  - SYS=22 ABI="google_apis;armeabi-v7a"
-  - SYS=22 ABI="default;armeabi-v7a"
-  - SYS=21 ABI="default;armeabi-v7a"
-  - SYS=20 ABI="default;armeabi-v7a"
-  - SYS=19 ABI="default;armeabi-v7a"
-
-
 jobs:
   include:
-    - name: "Android Emulators 1"
-      language: android
-      cache:
-        directories:
-          - node_modules
-          - $HOME/.gradle
-      sudo: required
-      jdk: oraclejdk8
-      dist: xenial
-      android:
-        components:
-          - tools
-          - build-tools-28.0.3
-          - extra-google-m2repository
-          - extra-android-m2repository
-          - platform-tools
-          - android-28
-          - sys-img-x86-android-28
-      install:
-        - echo yes | sdkmanager "system-images;android-28;default;x86"
-      before_script:
-        - echo no | android create avd --force -n test -t android-28 --abi x86 -c 100M
-        - emulator -avd test -no-audio -no-window &
-        - android-wait-for-emulator
-        - adb shell input keyevent 82 &
-      script: echo done
-    - name: "Android Emulators 2"
-      language: android
-      dist: xenial
-      android:
-        components:
-          - tools
-          - platform-tools
-          - build-tools-26.0.2
-          - android-26
-          - extra-google-m2repository
-          - extra-android-m2repository
-          - sys-img-x86-android-26
-          - sys-img-armeabi-v7a-android-17
-      before_script:
-        - echo no | android create avd --force -n test -t android-26 --abi armeabi-v7a
-        - emulator -avd test -no-audio -no-window &
-        - android-wait-for-emulator
-        - adb shell input keyevent 82 &
-    - name: "Android Emulators 3"
-      language: android
-      sudo: required
-      jdk: oraclejdk8
-      dist: xenial
-      android:
-        components:
-          - tools
-          - platform-tools
-          - build-tools-25.0.2
-          - android-26
-          - extra-google-m2repository
-          - extra-android-m2repository
-          - sys-img-x86-android-26
-          - sys-img-armeabi-v7a-android-17
-      install:
-        - echo yes | sdkmanager "system-images;android-26;default;x86"
-      before_script:
-        - echo no | android create avd --force -n test -t android-26 --abi x86 -c 100M
-        - emulator -avd test -no-audio -no-window &
-        - android-wait-for-emulator
-        - adb shell input keyevent 82 &
-      script: echo done
-    - name: "Android Emulators 4"
-      language: generic
-      sudo: required
-      dist: trusty
-      jdk: oraclejdk8
-      os: linux
-      install:
-        - mkdir -p $HOME/android-sdk-dl
-        - mkdir -p $HOME/android-sdk
-        - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi
-        - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
-        - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'tools' > /dev/null
-        - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
-        - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.2' > /dev/null
-        - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-27' > /dev/null
-        - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-22' > /dev/null
-        - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
-        - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;android;m2repository' > /dev/null
-        - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;google_play_services' > /dev/null
-        - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'emulator' > /dev/null
-        - yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
-      before_script:
-        - export ANDROID_HOME=$HOME/android-sdk/
-        - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
-        - yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
-        - $ANDROID_HOME/tools/bin/sdkmanager "system-images;android-$SYS;$ABI" > /dev/null
-        - $ANDROID_HOME/tools/bin/sdkmanager --list | head -15
-        - yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
-        - echo no | $ANDROID_HOME/tools/bin/avdmanager create avd --force -n test -k "system-images;android-$SYS;$ABI"
-        - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
-        - $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop init.svc.bootanim) ]]; do sleep 1; done; input keyevent 82'
-        - $ANDROID_HOME/platform-tools/adb shell settings put global window_animation_scale 0 &
-        - $ANDROID_HOME/platform-tools/adb shell settings put global transition_animation_scale 0 &
-        - $ANDROID_HOME/platform-tools/adb shell settings put global animator_duration_scale 0 &
-        - $ANDROID_HOME/platform-tools/adb shell settings put secure show_ime_with_hard_keyboard 0 &
-        - $ANDROID_HOME/platform-tools/adb shell input keyevent 82 &
-      script: echo done
+  - name: "Android Emulators 1"
+    language: android
+    cache:
+      directories:
+        - node_modules
+        - $HOME/.gradle
+    sudo: required
+    jdk: oraclejdk8
+    dist: xenial
+    android:
+      components:
+        - tools
+        - build-tools-28.0.3
+        - extra-google-m2repository
+        - extra-android-m2repository
+        - platform-tools
+        - android-28
+        - sys-img-x86-android-28
+    install:
+      - echo yes | sdkmanager "system-images;android-28;default;x86"
+    before_script:
+      - echo no | android create avd --force -n test -t android-28 --abi x86 -c 100M
+      - emulator -avd test -no-audio -no-window &
+      - android-wait-for-emulator
+      - adb shell input keyevent 82 &
+    script: echo done
+  - name: "Android Emulators 2"
+    language: android
+    dist: xenial
+    android:
+      components:
+        - tools
+        - platform-tools
+        - build-tools-26.0.2
+        - android-26
+        - extra-google-m2repository
+        - extra-android-m2repository
+        - sys-img-x86-android-26
+        - sys-img-armeabi-v7a-android-17
+    before_script:
+      - echo no | android create avd --force -n test -t android-26 --abi armeabi-v7a
+      - emulator -avd test -no-audio -no-window &
+      - android-wait-for-emulator
+      - adb shell input keyevent 82 &
+  - name: "Android Emulators 3"
+    language: android
+    sudo: required
+    jdk: oraclejdk8
+    dist: xenial
+    android:
+      components:
+        - tools
+        - platform-tools
+        - build-tools-25.0.2
+        - android-26
+        - extra-google-m2repository
+        - extra-android-m2repository
+        - sys-img-x86-android-26
+        - sys-img-armeabi-v7a-android-17
+    install:
+      - echo yes | sdkmanager "system-images;android-26;default;x86"
+    before_script:
+      - echo no | android create avd --force -n test -t android-26 --abi x86 -c 100M
+      - emulator -avd test -no-audio -no-window &
+      - android-wait-for-emulator
+      - adb shell input keyevent 82 &
+    script: echo done
+  - name: "Android Emulators 4"
+    language: generic
+    sudo: required
+    dist: trusty
+    jdk: oraclejdk8
+    os: linux
+    before_cache:
+      - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+      - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.bin
+      - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.lock
+    cache:
+      directories:
+        - $HOME/.gradle/caches/
+        - $HOME/.gradle/wrapper/
+        - $HOME/.android/build-cache
+        - $HOME/android-sdk-dl
+        - $HOME/android-sdk
+    install:
+      - mkdir -p $HOME/android-sdk-dl
+      - mkdir -p $HOME/android-sdk
+      - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi
+      - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
+      - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'tools' > /dev/null
+      - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
+      - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.2' > /dev/null
+      - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-27' > /dev/null
+      - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-22' > /dev/null
+      - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository' > /dev/null
+      - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;android;m2repository' > /dev/null
+      - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;google_play_services' > /dev/null
+      - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'emulator' > /dev/null
+      - yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
+    before_script:
+      - export ANDROID_HOME=$HOME/android-sdk/
+      - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
+      - yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+      - $ANDROID_HOME/tools/bin/sdkmanager "system-images;android-22;default;armeabi-v7a" > /dev/null
+      - $ANDROID_HOME/tools/bin/sdkmanager --list | head -15
+      - yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+      - echo no | $ANDROID_HOME/tools/bin/avdmanager create avd --force -n test -k "system-images;android-22;default;armeabi-v7a"
+      - $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window &
+      - $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop init.svc.bootanim) ]]; do sleep 1; done; input keyevent 82'
+      - $ANDROID_HOME/platform-tools/adb shell settings put global window_animation_scale 0 &
+      - $ANDROID_HOME/platform-tools/adb shell settings put global transition_animation_scale 0 &
+      - $ANDROID_HOME/platform-tools/adb shell settings put global animator_duration_scale 0 &
+      - $ANDROID_HOME/platform-tools/adb shell settings put secure show_ime_with_hard_keyboard 0 &
+      - $ANDROID_HOME/platform-tools/adb shell input keyevent 82 &
+    script: echo done
+  - name: "Android Emulators 5"
+    language: generic
+    sudo: required
+    dist: trusty
+    jdk: oraclejdk8
+    os: linux
+    before_cache:
+      - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+      - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.bin
+      - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.lock
+    cache:
+      directories:
+        - $HOME/.gradle/caches/
+        - $HOME/.gradle/wrapper/
+        - $HOME/.android/build-cache
+        - $HOME/android-sdk-dl
+        - $HOME/android-sdk
+    script: run_linux_android.sh
