@@ -1,0 +1,29 @@
+{
+    "name": "ci-playground",
+    "version": "0.1.0",
+    "description": "",
+    "keywords": [
+
+    ],
+    "homepage": "https://github.com/pavjacko/ci-playground#readme",
+    "bugs": {
+        "url": ""
+    },
+    "license": "MIT",
+    "author": {
+        "email": "i@pavjacko.com",
+        "name": "Pavel Jacko",
+        "url": "https://github.com/pavjacko"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/pavjacko/ci-playground.git"
+    },
+    "scripts": {
+
+    },
+    "devDependencies": {
+        "detox": "15.1.3",
+    },
+    "dependencies": {}
+}
