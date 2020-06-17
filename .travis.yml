@@ -3,7 +3,7 @@ env:
     - NODE_OPTIONS=--max_old_space_size=8192
 jobs:
   include:
-    - name: "Android Emulators"
+    - name: "Android Emulators 1"
       language: android
       cache:
         directories:
@@ -23,8 +23,27 @@ jobs:
       install:
         - echo yes | sdkmanager "platforms;android-28"
       before_script:
-        - echo no | android create avd --force -n test -t android-28 --abi armeabi-v7a -c 100M
+        - echo no | android create avd --force -n test -t android-28 --abi x86 -c 100M
         - emulator -avd test -no-audio -no-window &
         - android-wait-for-emulator
         - adb shell input keyevent 82 &
       script: echo done
+    - name: "Android Emulators 2"
+      language: android
+      dist: trusty
+      android:
+        components:
+          - tools
+          - platform-tools
+          - build-tools-26.0.2
+          - android-26
+          - extra-google-google_play_services
+          - extra-google-m2repository
+          - extra-android-m2repository
+          - sys-img-x86-android-26
+          - sys-img-armeabi-v7a-android-17
+        before_script:
+          - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a -c 100M
+          - emulator -avd test -no-audio -no-window &
+          - android-wait-for-emulator
+          - adb shell input keyevent 82 &
