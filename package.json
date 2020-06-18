@@ -20,10 +20,28 @@
         "url": "git://github.com/pavjacko/ci-playground.git"
     },
     "scripts": {
-
+        "bootstrap": "npx lerna bootstrap"
     },
     "devDependencies": {
         "detox": "15.1.3"
     },
-    "dependencies": {}
+    "dependencies": {},
+    "detox": {
+      "test-runner": "jest",
+      "runner-config": "./e2e/config.json",
+      "configurations": {
+          "android.emu.debug": {
+              "type": "android.emulator",
+              "device": {
+                  "avdName": "android_test"
+              }
+          },
+          "ios.sim.debug": {
+              "type": "ios.simulator",
+              "device": {
+                  "type": "iPhone 8"
+              }
+          }
+      }
+  }
 }
