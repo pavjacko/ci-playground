@@ -22,7 +22,7 @@ jobs:
     - curl -o- -L https://yarnpkg.com/install.sh | bash
     - export PATH="$HOME/.yarn/bin:$PATH"
     - yarn --version
-    - emulator -avd android_test -no-audio -no-window
+    - /usr/local/android-sdk/tools/emulator -avd android_test -no-audio -no-window
     script:
     - yarn bootstrap
     - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
