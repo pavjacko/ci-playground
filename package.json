@@ -23,7 +23,8 @@
         "bootstrap": "npx lerna bootstrap"
     },
     "devDependencies": {
-        "detox": "15.1.3"
+        "detox": "15.1.3",
+        "rnv": "0.29.0"
     },
     "dependencies": {},
     "detox": {

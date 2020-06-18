@@ -25,5 +25,6 @@ jobs:
     script:
     - yarn bootstrap
     - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+    - npx rnv status
     - npx detox build -c android.emu.release
     - npx detox test --headless -c android.emu.release --gpu swiftshader --cleanup
