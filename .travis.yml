@@ -1,31 +1,115 @@
+sudo: true
+language: generic
+dist: bionic
+
+addons:
+  apt:
+    packages:
+      - bridge-utils
+      - libpulse0
+      - libvirt-bin
+      - qemu-kvm
+      - virtinst
+      - ubuntu-vm-builder
 
 env:
   global:
-    - NODE_VERSION=stable
+    - ABI=x86_64
+    - API=29
+    - ADB_INSTALL_TIMEOUT=8
+    - ANDROID_HOME=${HOME}/android-sdk
+    - ANDROID_TOOLS_URL="https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip"
+    - EMU_FLAVOR=default # use google_apis flavor if no default flavor emulator
+    - GRAVIS="https://raw.githubusercontent.com/DanySK/Gravis-CI/master/"
+    - JDK="1.8"
+    - TOOLS=${ANDROID_HOME}/tools
+    # PATH order is incredibly important. e.g. the 'emulator' script exists in more than one place!
+    - PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
 
-jobs:
-  include:
-  - language: android
-    cache: yarn
-    jdk: oraclejdk8
-    dist: trusty
-    sudo: required
-    android:
-      components:
-        - build-tools-28.0.3
-        - android-28
-        - sys-img-x86-android-28
-    install:
-    - echo no | android create avd --force -n android_test -t android-28 --abi default/x86
-    - curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-    - sudo apt-get install -y nodejs
-    - curl -o- -L https://yarnpkg.com/install.sh | bash
-    - export PATH="$HOME/.yarn/bin:$PATH"
-    - yarn --version
-    - /usr/local/android-sdk/tools/emulator -avd android_test -no-audio -no-window
-    script:
-    - yarn bootstrap
-    - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-    - npx rnv status
-    - npx detox build -c android.emu.release
-    - npx detox test --headless -c android.emu.release --gpu swiftshader --cleanup
+#branches:
+#  only:
+#    - master
+#
+#jdk:
+#  - oraclejdk8
+
+before_install:
+  # Set up KVM
+  - sudo adduser $USER libvirt
+  - sudo adduser $USER kvm
+
+  # Set up JDK 8 for Android SDK
+  - curl "${GRAVIS}.install-jdk-travis.sh" --output ~/.install-jdk-travis.sh
+  - export TARGET_JDK="${JDK}"
+  - JDK="1.8"
+  - source ~/.install-jdk-travis.sh
+
+  # Set up Android SDK
+  - wget -q "${ANDROID_TOOLS_URL}" -O android-sdk-tools.zip
+  - unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}
+  - rm android-sdk-tools.zip
+
+  # Avoid harmless sdkmanager warning
+  - mkdir ~/.android
+  - echo 'count=0' > ~/.android/repositories.cfg
+
+  # Accept all Android license agreements
+  - yes | sdkmanager --licenses
+
+#android:
+#  components:
+#    - tools
+#    - platform-tools
+#    - build-tools-29.0.2
+#    - android-28
+#    - doc-27
+
+install:
+  # Download SDK tools
+  - echo y | sdkmanager "platform-tools" >/dev/null
+  - echo y | sdkmanager "tools" >/dev/null # A second time per Travis docs, gets latest versions
+  - echo y | sdkmanager "build-tools;28.0.3" >/dev/null # Implicit gradle dependency - gradle drives changes
+  - echo y | sdkmanager "platforms;android-$API" >/dev/null # We need the API of the emulator we will run
+  - echo y | sdkmanager "platforms;android-28" >/dev/null # We need the API of the current compileSdkVersion from gradle.properties
+  - echo y | sdkmanager "emulator" >/dev/null
+  - echo y | sdkmanager "extras;android;m2repository" >/dev/null
+  - echo y | sdkmanager "system-images;android-$API;$EMU_FLAVOR;$ABI" >/dev/null # install our emulator
+
+  # Create an Android emulator
+  - echo no | avdmanager create avd --force -n test -k "system-images;android-$API;$EMU_FLAVOR;$ABI" -c 10M
+  - |
+    EMU_PARAMS="-verbose -no-snapshot -no-window -camera-back none -camera-front none -selinux permissive -qemu -m 2048"
+    EMU_COMMAND="emulator"
+    if [[ $ABI =~ "x86" ]]; then
+      EMU_COMMAND="emulator-headless"
+    fi
+    # This double "sudo" monstrosity is used to have Travis execute the
+    # emulator with its new group permissions and help preserve the rule
+    # of least privilege.
+    sudo -E sudo -u $USER -E bash -c "${ANDROID_HOME}/emulator/${EMU_COMMAND} -avd test ${AUDIO} ${EMU_PARAMS} &"
+  # Wait for emulator to be ready
+  - ./tools/android-wait-for-emulator.sh
+  - adb shell input keyevent 82 &
+
+  # Switch back to our target JDK version to build and run tests
+  - JDK="${TARGET_JDK}"
+  - source ~/.install-jdk-travis.sh
+
+script:
+  # - set -o pipefail
+  # - set +o pipefail
+  - yarn bootstrap
+  - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+  - npx rnv status
+  - npx detox build -c android.emu.release
+  - npx detox test --headless -c android.emu.release --gpu swiftshader --cleanup
+
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - curl "${GRAVIS}.clean_gradle_cache.sh" --output ~/.clean_gradle_cache.sh
+  - bash ~/.clean_gradle_cache.sh
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
