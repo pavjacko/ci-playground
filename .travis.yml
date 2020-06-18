@@ -16,9 +16,10 @@ jobs:
         - android-28
         - sys-img-x86-android-28
     install:
-    - echo no | android create avd --force -n pixel9 -t android-28 --abi default/x86
+    - echo no | android create avd --force -n android_test -t android-28 --abi default/x86
     - curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
     - sudo apt-get install -y nodejs
+    - rm -rf ~/.yarn/bin/yarn || true && npm uninstall --global yarn; npm install --global yarn; yarn --version
     script:
     - yarn
     - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
